@@ -32,6 +32,7 @@ type S3Config struct {
 	Bucket    string `toml:"bucket"`
 	AccessKey string `toml:"access_key"`
 	SecretKey string `toml:"secret_key"`
+	UseSSL    bool   `toml:"use_ssl"`
 }
 
 var DefaultConfig = Config{

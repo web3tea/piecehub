@@ -38,6 +38,7 @@ func main() {
 		},
 		Commands: []*cli.Command{
 			dirCmd,
+			s3Cmd,
 		},
 		Action: func(c *cli.Context) error {
 			configPath := c.String("config")

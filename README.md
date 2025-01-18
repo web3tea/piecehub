@@ -1,5 +1,5 @@
 # piecehub
-A high-performance Filecoin piece storage server.
+A Filecoin piece storage server for curio market.
 
 ## Installation
 
@@ -11,13 +11,25 @@ go install github.com/strahe/piecehub/cmd/piecehub@latest
 
 1. Simple Directory Mode:
 ```bash
-# piecehub dir path1 path2 ...
-# Example:
-
-piecehub dir /data/pieces1 /data/pieces2 /data/pieces3
+piecehub dir /data/pieces1 /data/pieces2 ...
 ```
 
-2. Mutiple Storage Mode:
+For more options:
+```bash
+piecehub dir -h
+```
+
+2. Simple S3 Mode:
+```bash
+piecehub s3 --endpioint xx --ak xx --sk xx bucket1 bucket2 ...
+```
+
+For more options:
+```bash
+piecehub s3 -h
+```
+
+3. Hybrid Storage Mode:
 
 Create a configuration file `config.toml`:
 
@@ -46,6 +58,7 @@ region = "us-east-1"
 bucket = "my-pieces2"
 access_key = "xxx"
 secret_key = "xxx"
+use_ssl = false
 
 [[s3s]]
 name = "remote2"
@@ -54,6 +67,7 @@ region = "us-east-1"
 bucket = "my-pieces2"
 access_key = "xxx"
 secret_key = "xxx"
+use_ssl = false
 ```
 
 Start the server:
@@ -67,9 +81,6 @@ piecehub -c config.toml
 ### Check Piece Existence
 ```http
 HEAD /pieces?id=<pieceID>
-```
-or
-```http
 GET /pieces?id=<pieceID>
 ```
 
@@ -78,11 +89,14 @@ GET /pieces?id=<pieceID>
 GET /data?id=<pieceID>
 ```
 
-### Download with curl
+### Examples
+
+Using curl:
+
 ```bash
-# Check existence
-curl -I http://localhost:8080/pieces?id=xxx
+# Check if piece exists
+curl -I "http://localhost:8080/pieces?id=<pieceID>"
 
 # Download piece
-curl -O http://localhost:8080/data?id=xxx
+curl -O "http://localhost:8080/data?id=<pieceID>"
 ```
