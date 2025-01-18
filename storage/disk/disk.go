@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"syscall"
 
 	"github.com/strahe/piecehub/config"
 )
@@ -70,7 +69,7 @@ func (ds *DiskStorage) getPiecePath(pieceID string) string {
 
 func (ds *DiskStorage) openFileDirectIO(path string, flag int) (*os.File, error) {
 	if ds.cfg.DirectIO {
-		flag |= syscall.O_DIRECT
+		flag |= getDirectIOFlag()
 	}
 	return os.OpenFile(path, flag, 0644)
 }
