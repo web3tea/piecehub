@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -19,6 +20,8 @@ func NewHandler(store *storage.StorageManager) http.Handler {
 
 	mux.HandleFunc("/pieces", h.handleCheck)
 	mux.HandleFunc("/data", h.handleData)
+
+	mux.HandleFunc("/storages", h.handleStorageList)
 
 	handler := logMiddleware(mux)
 	return handler
@@ -74,4 +77,14 @@ func (h *Handler) handleData(w http.ResponseWriter, r *http.Request) {
 	if _, err := io.Copy(w, reader); err != nil {
 		return
 	}
+}
+
+func (h *Handler) handleStorageList(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(h.store.ListStorages())
 }

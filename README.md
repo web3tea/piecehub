@@ -89,6 +89,11 @@ GET /pieces?id=<pieceID>
 GET /data?id=<pieceID>
 ```
 
+### List Storage Name
+```http
+GET /storages
+```
+
 ### Examples
 
 Using curl:
