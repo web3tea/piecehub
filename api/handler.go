@@ -23,6 +23,9 @@ func NewHandler(store *storage.StorageManager) http.Handler {
 
 	mux.HandleFunc("/storages", h.handleStorageList)
 
+	// debug
+	mux.HandleFunc("/debug/generate-car", h.handleGenerateCar)
+
 	handler := logMiddleware(mux)
 	return handler
 }

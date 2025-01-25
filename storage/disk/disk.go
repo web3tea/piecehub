@@ -10,20 +10,15 @@ import (
 )
 
 type DiskStorage struct {
-	cfg     *config.DiskConfig
-	tempDir string
+	cfg *config.DiskConfig
 }
 
 func New(cfg *config.DiskConfig) (*DiskStorage, error) {
 	ds := &DiskStorage{
-		cfg:     cfg,
-		tempDir: filepath.Join(cfg.RootDir, "temp"),
+		cfg: cfg,
 	}
 
 	if err := os.MkdirAll(ds.cfg.RootDir, 0755); err != nil {
-		return nil, err
-	}
-	if err := os.MkdirAll(ds.tempDir, 0755); err != nil {
 		return nil, err
 	}
 
@@ -60,7 +55,18 @@ func (ds *DiskStorage) Read(ctx context.Context, pieceID string) (io.ReadSeekClo
 
 // Write implements storage.Storage.
 func (ds *DiskStorage) Write(ctx context.Context, pieceID string, reader io.Reader) error {
-	panic("unimplemented")
+	fp := filepath.Join(ds.cfg.RootDir, pieceID)
+
+	writer, err := os.Create(fp)
+	if err != nil {
+		return err
+	}
+	defer writer.Close()
+
+	if _, err := io.Copy(writer, reader); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (ds *DiskStorage) getPiecePath(pieceID string) string {

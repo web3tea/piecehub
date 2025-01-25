@@ -104,4 +104,10 @@ curl -I "http://localhost:8080/pieces?id=<pieceID>"
 
 # Download piece
 curl -O "http://localhost:8080/data?id=<pieceID>"
+
+# Generatge car file
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"size":268435456,"storageName":"test"}' \
+  http://localhost:8080/debug/generate-car
 ```

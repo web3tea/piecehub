@@ -19,6 +19,31 @@ type StorageManager struct {
 	mu       sync.RWMutex
 }
 
+func NewManager(cfg *config.Config) (*StorageManager, error) {
+	m := &StorageManager{
+		storages: make(map[string]Storage),
+		cache:    expirable.NewLRU[string, *pieceCache](1024*1024, nil, time.Minute),
+	}
+
+	for _, diskCfg := range cfg.Disks {
+		store, err := disk.New(&diskCfg)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create disk storage %s: %v", diskCfg.Name, err)
+		}
+		m.storages[diskCfg.Name] = store
+	}
+
+	for _, s3Cfg := range cfg.S3s {
+		store, err := s3.New(&s3Cfg)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create s3 storage %s: %v", s3Cfg.Name, err)
+		}
+		m.storages[s3Cfg.Name] = store
+	}
+
+	return m, nil
+}
+
 type pieceCache struct {
 	Storage string
 	Size    int64
@@ -64,31 +89,6 @@ func (m *StorageManager) Stats(ctx context.Context, pieceID string) (int64, erro
 // Write implements Storage.
 func (m *StorageManager) Write(ctx context.Context, pieceID string, reader io.Reader) error {
 	panic("unimplemented")
-}
-
-func NewManager(cfg *config.Config) (*StorageManager, error) {
-	m := &StorageManager{
-		storages: make(map[string]Storage),
-		cache:    expirable.NewLRU[string, *pieceCache](1024*1024, nil, time.Minute),
-	}
-
-	for _, diskCfg := range cfg.Disks {
-		store, err := disk.New(&diskCfg)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create disk storage %s: %v", diskCfg.Name, err)
-		}
-		m.storages[diskCfg.Name] = store
-	}
-
-	for _, s3Cfg := range cfg.S3s {
-		store, err := s3.New(&s3Cfg)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create s3 storage %s: %v", s3Cfg.Name, err)
-		}
-		m.storages[s3Cfg.Name] = store
-	}
-
-	return m, nil
 }
 
 func (m *StorageManager) GetStorage(name string) (Storage, error) {
