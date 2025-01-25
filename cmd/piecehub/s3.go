@@ -37,6 +37,10 @@ var s3Cmd = &cli.Command{
 			Name:  "listen",
 			Usage: "server listen address",
 		},
+		&cli.StringFlag{
+			Name:  "prefix",
+			Usage: "prefix path to prepend to all object keys when storing/retrieving from bucket (e.g. 'mydata/')",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		buckets := c.Args().Slice()
@@ -53,6 +57,7 @@ var s3Cmd = &cli.Command{
 				Endpoint:  c.String("endpoint"),
 				Region:    c.String("region"),
 				Bucket:    bucket,
+				Prefix:    c.String("prefix"),
 				AccessKey: c.String("ak"),
 				SecretKey: c.String("sk"),
 				UseSSL:    c.Bool("ssl"),

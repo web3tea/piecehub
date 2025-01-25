@@ -30,6 +30,7 @@ type S3Config struct {
 	Endpoint  string `toml:"endpoint"`
 	Region    string `toml:"region"`
 	Bucket    string `toml:"bucket"`
+	Prefix    string `toml:"prefix"`
 	AccessKey string `toml:"access_key"`
 	SecretKey string `toml:"secret_key"`
 	UseSSL    bool   `toml:"use_ssl"`
