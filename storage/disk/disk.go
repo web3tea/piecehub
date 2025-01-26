@@ -31,8 +31,8 @@ func (ds *DiskStorage) Name() string {
 }
 
 // Stats implements storage.Storage.
-func (ds *DiskStorage) Stats(ctx context.Context, pieceID string) (int64, error) {
-	path := ds.getPiecePath(pieceID)
+func (ds *DiskStorage) Stats(ctx context.Context, name string) (int64, error) {
+	path := ds.getPiecePath(name)
 
 	fileInfo, err := os.Stat(path)
 	if err != nil {
@@ -42,20 +42,20 @@ func (ds *DiskStorage) Stats(ctx context.Context, pieceID string) (int64, error)
 }
 
 // Delete implements storage.Storage.
-func (ds *DiskStorage) Delete(ctx context.Context, pieceID string) error {
-	path := ds.getPiecePath(pieceID)
+func (ds *DiskStorage) Delete(ctx context.Context, name string) error {
+	path := ds.getPiecePath(name)
 	return os.Remove(path)
 }
 
 // Read implements storage.Storage.
-func (ds *DiskStorage) Read(ctx context.Context, pieceID string) (io.ReadSeekCloser, error) {
-	path := ds.getPiecePath(pieceID)
+func (ds *DiskStorage) Read(ctx context.Context, name string) (io.ReadSeekCloser, error) {
+	path := ds.getPiecePath(name)
 	return ds.openFileDirectIO(path, os.O_RDONLY)
 }
 
 // Write implements storage.Storage.
-func (ds *DiskStorage) Write(ctx context.Context, pieceID string, reader io.Reader) error {
-	fp := filepath.Join(ds.cfg.RootDir, pieceID)
+func (ds *DiskStorage) Write(ctx context.Context, name string, reader io.Reader) error {
+	fp := filepath.Join(ds.cfg.RootDir, name)
 
 	writer, err := os.Create(fp)
 	if err != nil {
@@ -69,8 +69,8 @@ func (ds *DiskStorage) Write(ctx context.Context, pieceID string, reader io.Read
 	return nil
 }
 
-func (ds *DiskStorage) getPiecePath(pieceID string) string {
-	return filepath.Join(ds.cfg.RootDir, pieceID)
+func (ds *DiskStorage) getPiecePath(name string) string {
+	return filepath.Join(ds.cfg.RootDir, name)
 }
 
 func (ds *DiskStorage) openFileDirectIO(path string, flag int) (*os.File, error) {

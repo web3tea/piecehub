@@ -58,7 +58,10 @@ func (h *Handler) handleGenerateCar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	carName := fmt.Sprintf("%s.car", cid.String())
-	st.Write(r.Context(), carName, fd)
+	if err := st.Write(r.Context(), carName, fd); err != nil {
+		http.Error(w, "Failed to write car to storage", http.StatusInternalServerError)
+		return
+	}
 
 	type response struct {
 		CID  string `json:"cid"`

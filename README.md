@@ -80,13 +80,13 @@ piecehub -c config.toml
 
 ### Check Piece Existence
 ```http
-HEAD /pieces?id=<pieceID>
-GET /pieces?id=<pieceID>
+HEAD /pieces?id=<filename>
+GET /pieces?id=<filename>
 ```
 
 ### Get Piece Data
 ```http
-GET /data?id=<pieceID>
+GET /data?id=<filename>
 ```
 
 ### List Storage Name
@@ -100,14 +100,17 @@ Using curl:
 
 ```bash
 # Check if piece exists
-curl -I "http://localhost:8080/pieces?id=<pieceID>"
+curl -I "http://localhost:8080/pieces?id=<filename>"
 
 # Download piece
-curl -O "http://localhost:8080/data?id=<pieceID>"
+curl -O "http://localhost:8080/data?id=<filename>"
 
 # Generatge car file
 curl -X POST \
   -H "Content-Type: application/json" \
-  -d '{"size":268435456,"storageName":"test"}' \
+  -d '{"size":268435456,"storageName":"test-storage-name"}' \
   http://localhost:8080/debug/generate-car
+
+# Response
+{"cid":"bafkreibq4fevl27rgurgnxbp7adh42aqiyd6ouflxhj3gzmcxcxzbh6lla","name":"bafkreibq4fevl27rgurgnxbp7adh42aqiyd6ouflxhj3gzmcxcxzbh6lla.car","size":268445499}
 ```

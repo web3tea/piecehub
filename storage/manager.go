@@ -50,44 +50,44 @@ type pieceCache struct {
 }
 
 // Delete implements Storage.
-func (m *StorageManager) Delete(ctx context.Context, pieceID string) error {
+func (m *StorageManager) Delete(ctx context.Context, name string) error {
 	panic("unimplemented")
 }
 
 // Read implements Storage.
-func (m *StorageManager) Read(ctx context.Context, pieceID string) (io.ReadSeekCloser, error) {
-	if pc, ok := m.cache.Get(pieceID); ok {
+func (m *StorageManager) Read(ctx context.Context, name string) (io.ReadSeekCloser, error) {
+	if pc, ok := m.cache.Get(name); ok {
 		store, err := m.GetStorage(pc.Storage)
 		if err != nil {
 			return nil, err
 		}
-		return store.Read(ctx, pieceID)
+		return store.Read(ctx, name)
 	}
 	for _, store := range m.storages {
-		if size, err := store.Stats(ctx, pieceID); err == nil {
-			m.cache.Add(pieceID, &pieceCache{Storage: store.Name(), Size: size})
-			return store.Read(ctx, pieceID)
+		if size, err := store.Stats(ctx, name); err == nil {
+			m.cache.Add(name, &pieceCache{Storage: store.Name(), Size: size})
+			return store.Read(ctx, name)
 		}
 	}
-	return nil, fmt.Errorf("piece not found: %s", pieceID)
+	return nil, fmt.Errorf("piece not found: %s", name)
 }
 
 // Stats implements Storage.
-func (m *StorageManager) Stats(ctx context.Context, pieceID string) (int64, error) {
-	if pc, ok := m.cache.Get(pieceID); ok {
+func (m *StorageManager) Stats(ctx context.Context, name string) (int64, error) {
+	if pc, ok := m.cache.Get(name); ok {
 		return pc.Size, nil
 	}
 	for _, store := range m.storages {
-		if size, err := store.Stats(ctx, pieceID); err == nil {
-			m.cache.Add(pieceID, &pieceCache{Storage: store.Name(), Size: size})
+		if size, err := store.Stats(ctx, name); err == nil {
+			m.cache.Add(name, &pieceCache{Storage: store.Name(), Size: size})
 			return size, nil
 		}
 	}
-	return 0, fmt.Errorf("piece not found: %s", pieceID)
+	return 0, fmt.Errorf("piece not found: %s", name)
 }
 
 // Write implements Storage.
-func (m *StorageManager) Write(ctx context.Context, pieceID string, reader io.Reader) error {
+func (m *StorageManager) Write(ctx context.Context, name string, reader io.Reader) error {
 	panic("unimplemented")
 }
 
