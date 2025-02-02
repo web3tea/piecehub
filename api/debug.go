@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/strahe/piecehub/internal/car"
+	"golang.org/x/sync/errgroup"
 )
 
 func (h *Handler) handleGenerateCar(w http.ResponseWriter, r *http.Request) {
@@ -58,21 +59,40 @@ func (h *Handler) handleGenerateCar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	carName := fmt.Sprintf("%s.car", cid.String())
-	if err := st.Write(r.Context(), carName, fd); err != nil {
-		http.Error(w, "Failed to write car to storage", http.StatusInternalServerError)
+	var commp string
+	g, ctx := errgroup.WithContext(r.Context())
+	g.Go(func() error {
+		err := st.Write(ctx, carName, fd)
+		if err != nil {
+			return fmt.Errorf("failed to write car to storage: %w", err)
+		}
+		return nil
+	})
+	g.Go(func() error {
+		cp, err := car.Commp(carPath)
+		if err != nil {
+			return fmt.Errorf("failed to generate commP: %w", err)
+		}
+		commp = cp
+		return nil
+	})
+	if err := g.Wait(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	type response struct {
-		CID  string `json:"cid"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
+		CID   string `json:"cid"`
+		Name  string `json:"name"`
+		Commp string `json:"commp"`
+		Size  int64  `json:"size"`
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&response{
-		CID:  cid.String(),
-		Name: carName,
-		Size: info.Size(),
+		CID:   cid.String(),
+		Name:  carName,
+		Size:  info.Size(),
+		Commp: commp,
 	})
 }

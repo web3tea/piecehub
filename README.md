@@ -112,5 +112,10 @@ curl -X POST \
   http://localhost:8080/debug/generate-car
 
 # Response
-{"cid":"bafkreibq4fevl27rgurgnxbp7adh42aqiyd6ouflxhj3gzmcxcxzbh6lla","name":"bafkreibq4fevl27rgurgnxbp7adh42aqiyd6ouflxhj3gzmcxcxzbh6lla.car","size":268445499}
+{
+    "cid":"bafkreibq4fevl27rgurgnxbp7adh42aqiyd6ouflxhj3gzmcxcxzbh6lla",
+    "name":"bafkreibq4fevl27rgurgnxbp7adh42aqiyd6ouflxhj3gzmcxcxzbh6lla.car",
+    "commp": "baga6ea4seaqb46zh6n4fig7nuf5lmfylxr4flmzu2tgfjm6k4werggcnp3fvspy",
+    "size":268445499
+}
 ```
