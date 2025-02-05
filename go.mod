@@ -14,7 +14,6 @@ require (
 	github.com/multiformats/go-multibase v0.2.0
 	github.com/multiformats/go-multihash v0.2.3
 	github.com/urfave/cli/v2 v2.27.5
-	golang.org/x/sync v0.10.0
 )
 
 require (

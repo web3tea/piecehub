@@ -2,12 +2,12 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 
+	"github.com/ipfs/go-cidutil/cidenc"
+	"github.com/multiformats/go-multibase"
 	"github.com/strahe/piecehub/internal/car"
-	"golang.org/x/sync/errgroup"
 )
 
 func (h *Handler) handleGenerateCar(w http.ResponseWriter, r *http.Request) {
@@ -53,46 +53,42 @@ func (h *Handler) handleGenerateCar(w http.ResponseWriter, r *http.Request) {
 	}
 	defer fd.Close()
 
-	info, err := fd.Stat()
+	ci, err := fd.Stat()
 	if err != nil {
-		http.Error(w, "Failed to get file info", http.StatusInternalServerError)
+		http.Error(w, "Failed to stat car file", http.StatusInternalServerError)
 		return
 	}
-	carName := fmt.Sprintf("%s.car", cid.String())
-	var commp string
-	g, ctx := errgroup.WithContext(r.Context())
-	g.Go(func() error {
-		err := st.Write(ctx, carName, fd)
-		if err != nil {
-			return fmt.Errorf("failed to write car to storage: %w", err)
-		}
-		return nil
-	})
-	g.Go(func() error {
-		cp, err := car.Commp(carPath)
-		if err != nil {
-			return fmt.Errorf("failed to generate commP: %w", err)
-		}
-		commp = cp
-		return nil
-	})
-	if err := g.Wait(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	// commp
+	cp, err := car.Commp(carPath)
+	if err != nil {
+		http.Error(w, "Failed to generate commP", http.StatusInternalServerError)
+		return
+	}
+
+	encoder := cidenc.Encoder{Base: multibase.MustNewEncoder(multibase.Base32)}
+
+	pieceCid := encoder.Encode(cp.PieceCID)
+	err = st.Write(r.Context(), pieceCid, fd)
+	if err != nil {
+		http.Error(w, "Failed to write car to storage", http.StatusInternalServerError)
 		return
 	}
 
 	type response struct {
-		CID   string `json:"cid"`
-		Name  string `json:"name"`
-		Commp string `json:"commp"`
-		Size  int64  `json:"size"`
+		PieceCID    string `json:"pieceCid"`
+		PieceSize   uint64 `json:"pieceSize"`
+		PayloadSize uint64 `json:"payloadSize"`
+		CarSize     uint64 `json:"carSize"`
+		CarCID      string `json:"carCid"`
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&response{
-		CID:   cid.String(),
-		Name:  carName,
-		Size:  info.Size(),
-		Commp: commp,
+		PieceCID:    pieceCid,
+		PieceSize:   uint64(cp.PieceSize),
+		PayloadSize: uint64(cp.PayloadSize),
+		CarCID:      cid.String(),
+		CarSize:     uint64(ci.Size()),
 	})
 }

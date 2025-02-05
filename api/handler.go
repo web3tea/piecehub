@@ -30,7 +30,7 @@ func NewHandler(store *storage.StorageManager) http.Handler {
 	return handler
 }
 
-// GET /pieces?id=<filename>
+// GET /pieces?id=<piececid>
 func (h *Handler) handleCheck(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet, http.MethodHead:
@@ -39,13 +39,13 @@ func (h *Handler) handleCheck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filePath := r.URL.Query().Get("id")
-	if filePath == "" {
-		http.Error(w, "file path required", http.StatusBadRequest)
+	pieceCid := r.URL.Query().Get("id")
+	if pieceCid == "" {
+		http.Error(w, "piececid required", http.StatusBadRequest)
 		return
 	}
 
-	size, err := h.store.Stats(r.Context(), filePath)
+	size, err := h.store.Stats(r.Context(), pieceCid)
 	if err != nil {
 		http.Error(w, "file not found", http.StatusNotFound)
 		return
@@ -55,20 +55,20 @@ func (h *Handler) handleCheck(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// GET /data?id=<filepath>
+// GET /data?id=<piececid>
 func (h *Handler) handleData(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	filePath := r.URL.Query().Get("id")
-	if filePath == "" {
-		http.Error(w, "file path required", http.StatusBadRequest)
+	pieceCid := r.URL.Query().Get("id")
+	if pieceCid == "" {
+		http.Error(w, "piececid required", http.StatusBadRequest)
 		return
 	}
 
-	reader, err := h.store.Read(r.Context(), filePath)
+	reader, err := h.store.Read(r.Context(), pieceCid)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed to read piece: %v", err), http.StatusNotFound)
 		return

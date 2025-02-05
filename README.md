@@ -80,13 +80,13 @@ piecehub -c config.toml
 
 ### Check Piece Existence
 ```http
-HEAD /pieces?id=<filename>
-GET /pieces?id=<filename>
+HEAD /pieces?id=<pieceCid>
+GET /pieces?id=<pieceCid>
 ```
 
 ### Get Piece Data
 ```http
-GET /data?id=<filename>
+GET /data?id=<pieceCid>
 ```
 
 ### List Storage Name
@@ -100,10 +100,10 @@ Using curl:
 
 ```bash
 # Check if piece exists
-curl -I "http://localhost:8080/pieces?id=<filename>"
+curl -I "http://localhost:8080/pieces?id=<pieceCid>"
 
 # Download piece
-curl -O "http://localhost:8080/data?id=<filename>"
+curl -O "http://localhost:8080/data?id=<pieceCid>"
 
 # Generatge car file
 curl -X POST \
@@ -113,9 +113,10 @@ curl -X POST \
 
 # Response
 {
-    "cid":"bafkreibq4fevl27rgurgnxbp7adh42aqiyd6ouflxhj3gzmcxcxzbh6lla",
-    "name":"bafkreibq4fevl27rgurgnxbp7adh42aqiyd6ouflxhj3gzmcxcxzbh6lla.car",
-    "commp": "baga6ea4seaqb46zh6n4fig7nuf5lmfylxr4flmzu2tgfjm6k4werggcnp3fvspy",
-    "size":268445499
+    "pieceCid":"baga6ea4seaqb46zh6n4fig7nuf5lmfylxr4flmzu2tgfjm6k4werggcnp3fvspy",
+    "pieceSize":536870912,
+    "payloadSize":268445499,
+    "carSize":268445499,
+    "carCid":"bafkreibq4fevl27rgurgnxbp7adh42aqiyd6ouflxhj3gzmcxcxzbh6lla"
 }
 ```

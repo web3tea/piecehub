@@ -9,9 +9,7 @@ import (
 	"github.com/filecoin-project/go-commp-utils/v2/writer"
 	blocks "github.com/ipfs/go-block-format"
 	"github.com/ipfs/go-cid"
-	"github.com/ipfs/go-cidutil/cidenc"
 	"github.com/ipld/go-car/v2/blockstore"
-	"github.com/multiformats/go-multibase"
 	"github.com/multiformats/go-multihash"
 )
 
@@ -123,26 +121,25 @@ func (r *RepeatedReader) Read(p []byte) (n int, err error) {
 	return toRead, nil
 }
 
-func CommpReader(rdr io.Reader) (string, error) {
+func CommpReader(rdr io.Reader) (*writer.DataCIDSize, error) {
 	w := &writer.Writer{}
 	_, err := io.CopyBuffer(w, rdr, make([]byte, writer.CommPBuf))
 	if err != nil {
-		return "", fmt.Errorf("copy into commp writer: %w", err)
+		return nil, fmt.Errorf("copy into commp writer: %w", err)
 	}
 
 	cp, err := w.Sum()
 	if err != nil {
-		return "", fmt.Errorf("computing commP failed: %w", err)
+		return nil, fmt.Errorf("computing commP failed: %w", err)
 	}
 
-	encoder := cidenc.Encoder{Base: multibase.MustNewEncoder(multibase.Base32)}
-	return encoder.Encode(cp.PieceCID), nil
+	return &cp, nil
 }
 
-func Commp(inPath string) (string, error) {
+func Commp(inPath string) (*writer.DataCIDSize, error) {
 	rdr, err := os.Open(inPath)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer rdr.Close()
 
