@@ -2,6 +2,7 @@ package car
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
 	"io"
 	"os"
@@ -81,17 +82,26 @@ func createCID(data []byte) cid.Cid {
 }
 
 type RepeatedReader struct {
-	size     int64
-	remain   int64
-	block    []byte
-	blockNum uint64
+	size       int64
+	remain     int64
+	buffer     []byte
+	bufferSize int
+	offset     int
 }
 
-func NewRepeatedReader(size, blockSize int64) *RepeatedReader {
+const (
+	DefaultBufferSize = 16*1024*1024 + 1
+)
+
+func NewRepeatedReader(size int64, chunkSize int64) *RepeatedReader {
+	buffer := make([]byte, DefaultBufferSize)
+	rand.Read(buffer)
+
 	return &RepeatedReader{
-		size:   size,
-		remain: size,
-		block:  make([]byte, blockSize),
+		size:       size,
+		remain:     size,
+		buffer:     buffer,
+		bufferSize: DefaultBufferSize,
 	}
 }
 
@@ -105,20 +115,25 @@ func (r *RepeatedReader) Read(p []byte) (n int, err error) {
 		toRead = int(r.remain)
 	}
 
-	r.block[0] = byte(r.blockNum)
-	r.block[1] = byte(r.blockNum >> 8)
-	r.block[2] = byte(r.blockNum >> 16)
-	r.block[3] = byte(r.blockNum >> 24)
-	r.block[4] = byte(r.blockNum >> 32)
-	r.block[5] = byte(r.blockNum >> 40)
-	r.block[6] = byte(r.blockNum >> 48)
-	r.block[7] = byte(r.blockNum >> 56)
-	r.blockNum++
+	written := 0
+	for written < toRead {
+		available := r.bufferSize - r.offset
+		shouldRead := toRead - written
+		if shouldRead > available {
+			shouldRead = available
+		}
 
-	copy(p[:toRead], r.block[:toRead])
-	r.remain -= int64(toRead)
+		copy(p[written:written+shouldRead], r.buffer[r.offset:r.offset+shouldRead])
+		written += shouldRead
 
-	return toRead, nil
+		r.offset += shouldRead
+		if r.offset >= r.bufferSize {
+			r.offset = 0
+		}
+	}
+
+	r.remain -= int64(written)
+	return written, nil
 }
 
 func CommpReader(rdr io.Reader) (*writer.DataCIDSize, error) {
