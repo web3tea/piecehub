@@ -14,14 +14,16 @@ import (
 	"github.com/strahe/piecehub/api"
 	"github.com/strahe/piecehub/config"
 	"github.com/strahe/piecehub/storage"
+	"github.com/strahe/piecehub/version"
 	"github.com/urfave/cli/v2"
 )
 
 func main() {
 
 	app := &cli.App{
-		Name:  "piecehub",
-		Usage: "A piece storage service",
+		Name:    "piecehub",
+		Usage:   "A piece storage service",
+		Version: version.GetVersion(),
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config",
