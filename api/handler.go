@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -18,9 +17,7 @@ func NewHandler(store *storage.StorageManager) http.Handler {
 	mux := http.NewServeMux()
 	h := &Handler{store: store}
 
-	mux.HandleFunc("/pieces", h.handleCheck)
-	mux.HandleFunc("/data", h.handleData)
-
+	mux.HandleFunc("/pieces", h.handlePieces)
 	mux.HandleFunc("/storages", h.handleStorageList)
 
 	// debug
@@ -30,18 +27,16 @@ func NewHandler(store *storage.StorageManager) http.Handler {
 	return handler
 }
 
-// GET /pieces?id=<piececid>
-func (h *Handler) handleCheck(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet, http.MethodHead:
-	default:
+func (h *Handler) handlePieces(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	pieceCid := r.URL.Query().Get("id")
 	if pieceCid == "" {
-		http.Error(w, "piececid required", http.StatusBadRequest)
+		http.Error(w, "piece id required", http.StatusBadRequest)
 		return
 	}
 
@@ -52,25 +47,15 @@ func (h *Handler) handleCheck(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Length", strconv.FormatInt(size, 10))
-	w.WriteHeader(http.StatusOK)
-}
 
-// GET /data?id=<piececid>
-func (h *Handler) handleData(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	pieceCid := r.URL.Query().Get("id")
-	if pieceCid == "" {
-		http.Error(w, "piececid required", http.StatusBadRequest)
+	if r.Method == http.MethodHead {
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	reader, err := h.store.Read(r.Context(), pieceCid)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to read piece: %v", err), http.StatusNotFound)
+		http.Error(w, "failed to read piece", http.StatusInternalServerError)
 		return
 	}
 	defer reader.Close()

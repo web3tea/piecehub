@@ -11,7 +11,7 @@ go install github.com/strahe/piecehub/cmd/piecehub@latest
 
 1. Simple Directory Mode:
 ```bash
-piecehub dir /data/pieces1 /data/pieces2 ...
+piecehub dir /data/pieces1 [/data/pieces2 ...]
 ```
 
 For more options:
@@ -21,7 +21,7 @@ piecehub dir -h
 
 2. Simple S3 Mode:
 ```bash
-piecehub s3 --endpioint xx --ak xx --sk xx bucket1 bucket2 ...
+piecehub s3 --endpioint xx --ak xx --sk xx bucket1 [bucket2 ...]
 ```
 
 For more options:
@@ -59,6 +59,7 @@ bucket = "my-pieces2"
 access_key = "xxx"
 secret_key = "xxx"
 use_ssl = false
+prefix = ""
 
 [[s3s]]
 name = "remote2"
@@ -68,6 +69,7 @@ bucket = "my-pieces2"
 access_key = "xxx"
 secret_key = "xxx"
 use_ssl = false
+prefix = ""
 ```
 
 Start the server:
@@ -81,12 +83,11 @@ piecehub -c config.toml
 ### Check Piece Existence
 ```http
 HEAD /pieces?id=<pieceCid>
-GET /pieces?id=<pieceCid>
 ```
 
 ### Get Piece Data
 ```http
-GET /data?id=<pieceCid>
+GET /pieces?id=<pieceCid>
 ```
 
 ### List Storage Name
@@ -103,7 +104,7 @@ Using curl:
 curl -I "http://localhost:8080/pieces?id=<pieceCid>"
 
 # Download piece
-curl -O "http://localhost:8080/data?id=<pieceCid>"
+curl -O "http://localhost:8080/pieces?id=<pieceCid>"
 
 # Generatge car file
 curl -X POST \
