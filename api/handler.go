@@ -6,16 +6,18 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/strahe/piecehub/config"
 	"github.com/strahe/piecehub/storage"
 )
 
 type Handler struct {
 	store *storage.StorageManager
+	cfg   *config.Config
 }
 
-func NewHandler(store *storage.StorageManager) http.Handler {
+func NewHandler(cfg *config.Config, store *storage.StorageManager) http.Handler {
 	mux := http.NewServeMux()
-	h := &Handler{store: store}
+	h := &Handler{store: store, cfg: cfg}
 
 	mux.HandleFunc("/pieces", h.handlePieces)
 	mux.HandleFunc("/storages", h.handleStorageList)
@@ -24,6 +26,11 @@ func NewHandler(store *storage.StorageManager) http.Handler {
 	mux.HandleFunc("/debug/generate-car", h.handleGenerateCar)
 
 	handler := logMiddleware(mux)
+
+	// auth
+	authenticator := NewAuthenticator(cfg.Server.Tokens)
+	handler = authenticator.Authenticate(handler)
+
 	return handler
 }
 

@@ -13,9 +13,10 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Address      string `toml:"address"`
-	ReadTimeout  int    `toml:"read_timeout"`
-	WriteTimeout int    `toml:"write_timeout"`
+	Address      string   `toml:"address"`
+	ReadTimeout  int      `toml:"read_timeout"`
+	WriteTimeout int      `toml:"write_timeout"`
+	Tokens       []string `toml:"tokens"`
 }
 
 type DiskConfig struct {

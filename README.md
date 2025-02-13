@@ -9,7 +9,7 @@ go install github.com/strahe/piecehub/cmd/piecehub@latest
 
 ## Quick Start
 
-1. Simple Directory Mode:
+### 1. Simple Directory Mode:
 ```bash
 piecehub dir /data/pieces1 [/data/pieces2 ...]
 ```
@@ -19,7 +19,7 @@ For more options:
 piecehub dir -h
 ```
 
-2. Simple S3 Mode:
+### 2. Simple S3 Mode:
 ```bash
 piecehub s3 --endpioint xx --ak xx --sk xx bucket1 [bucket2 ...]
 ```
@@ -29,7 +29,7 @@ For more options:
 piecehub s3 -h
 ```
 
-3. Hybrid Storage Mode:
+### 3. Hybrid Storage Mode:
 
 Create a configuration file `config.toml`:
 
@@ -38,6 +38,7 @@ Create a configuration file `config.toml`:
 address = ":8080"
 read_timeout = 30
 write_timeout = 30
+tokens = ["xxx"]
 
 [[disks]]
 name = "local1"
@@ -78,6 +79,27 @@ Start the server:
 piecehub -c config.toml
 ```
 
+### 4. Authentication
+
+No authentication by default.
+
+To enable authentication, set the `tokens` field in the configuration file or use the command line option.
+
+1. Add token to the configuration file:
+
+```toml
+[server]
+tokens = ["token1", "token2"]
+```
+
+2. Use the command line option:
+
+```bash
+piecehub --token token1 --token token2 -c config.toml
+```
+
+
+
 ## API
 
 ### Check Piece Existence
@@ -105,6 +127,9 @@ curl -I "http://localhost:8080/pieces?id=<pieceCid>"
 
 # Download piece
 curl -O "http://localhost:8080/pieces?id=<pieceCid>"
+
+# With token
+curl -H "Authorization: your-token" -O "http://localhost:8080/pieces?id=<pieceCid>"
 
 # Generatge car file
 curl -X POST \

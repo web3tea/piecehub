@@ -40,6 +40,12 @@ var dirCmd = &cli.Command{
 				DirectIO: c.Bool("direct-io"),
 			})
 		}
+
+		tokens := c.StringSlice("tokens")
+		if len(tokens) > 0 {
+			cfg.Server.Tokens = append(cfg.Server.Tokens, tokens...)
+		}
+
 		return runServer(&cfg)
 	},
 }

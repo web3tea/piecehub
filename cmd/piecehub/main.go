@@ -31,6 +31,10 @@ func main() {
 				Value:   "config.toml",
 				Usage:   "load configuration from `FILE`",
 			},
+			&cli.StringSliceFlag{
+				Name:  "token",
+				Usage: "token for accessing the service, can specify multiple tokens",
+			},
 			&cli.StringFlag{
 				Name:    "log-level",
 				Value:   "info",
@@ -56,6 +60,12 @@ func main() {
 			if err != nil {
 				return fmt.Errorf("load config: %v", err)
 			}
+
+			tokens := c.StringSlice("token")
+			if len(tokens) > 0 {
+				cfg.Server.Tokens = append(cfg.Server.Tokens, tokens...)
+			}
+
 			return runServer(cfg)
 		},
 	}
@@ -70,7 +80,7 @@ func runServer(cfg *config.Config) error {
 		return fmt.Errorf("create storage manager: %v", err)
 	}
 
-	handler := api.NewHandler(store)
+	handler := api.NewHandler(cfg, store)
 
 	log.Printf("Starting server on %s", cfg.Server.Address)
 	if err := startServer(cfg, handler); err != nil {

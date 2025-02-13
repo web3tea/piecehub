@@ -63,6 +63,12 @@ var s3Cmd = &cli.Command{
 				UseSSL:    c.Bool("ssl"),
 			})
 		}
+
+		tokens := c.StringSlice("tokens")
+		if len(tokens) > 0 {
+			cfg.Server.Tokens = append(cfg.Server.Tokens, tokens...)
+		}
+
 		return runServer(&cfg)
 	},
 }
