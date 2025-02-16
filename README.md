@@ -43,14 +43,10 @@ tokens = ["xxx"]
 [[disks]]
 name = "local1"
 root_dir = "/data/pieces1"
-max_size = 1073741824  # 1GB
-direct_io = true
 
 [[disks]]
 name = "local2"
 root_dir = "/data/pieces2"
-max_size = 1073741824  # 1GB
-direct_io = true
 
 [[s3s]]
 name = "remote1"

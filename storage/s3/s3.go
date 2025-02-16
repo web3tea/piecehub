@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"path/filepath"
+	"time"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -53,6 +55,20 @@ func (s *S3Storage) Read(ctx context.Context, name string) (io.ReadSeekCloser, e
 		return nil, fmt.Errorf("failed to read piece: %w", err)
 	}
 	return mo, nil
+}
+
+// CopyToHTTP implements storage.Storage.
+func (s *S3Storage) CopyToHTTP(ctx context.Context, name string, w http.ResponseWriter, req *http.Request) error {
+	http.ServeFile(w, req, name)
+
+	obj, err := s.Read(ctx, name)
+	if err != nil {
+		return fmt.Errorf("failed to read piece: %w", err)
+	}
+	defer obj.Close() // nolint: errcheck
+
+	http.ServeContent(w, req, name, time.Now(), obj)
+	return nil
 }
 
 func (s *S3Storage) Write(ctx context.Context, name string, reader io.Reader) error {

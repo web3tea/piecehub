@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 	"strconv"
 
@@ -11,11 +10,11 @@ import (
 )
 
 type Handler struct {
-	store *storage.StorageManager
+	store storage.Manager
 	cfg   *config.Config
 }
 
-func NewHandler(cfg *config.Config, store *storage.StorageManager) http.Handler {
+func NewHandler(cfg *config.Config, store storage.Manager) http.Handler {
 	mux := http.NewServeMux()
 	h := &Handler{store: store, cfg: cfg}
 
@@ -60,18 +59,8 @@ func (h *Handler) handlePieces(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reader, err := h.store.Read(r.Context(), pieceCid)
-	if err != nil {
-		http.Error(w, "failed to read piece", http.StatusInternalServerError)
-		return
-	}
-	defer reader.Close()
-
 	w.Header().Set("Content-Type", "application/octet-stream")
-
-	if _, err := io.Copy(w, reader); err != nil {
-		return
-	}
+	h.store.CopyToHTTP(r.Context(), pieceCid, w, r)
 }
 
 func (h *Handler) handleStorageList(w http.ResponseWriter, r *http.Request) {

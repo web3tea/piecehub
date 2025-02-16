@@ -20,10 +20,8 @@ type ServerConfig struct {
 }
 
 type DiskConfig struct {
-	Name     string `toml:"name"`
-	RootDir  string `toml:"root_dir"`
-	MaxSize  int64  `toml:"max_size"`
-	DirectIO bool   `toml:"direct_io"`
+	Name    string `toml:"name"`
+	RootDir string `toml:"root_dir"`
 }
 
 type S3Config struct {

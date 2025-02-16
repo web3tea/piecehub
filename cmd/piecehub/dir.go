@@ -12,13 +12,6 @@ var dirCmd = &cli.Command{
 	Usage:     "start a piecehub server with disk storage",
 	ArgsUsage: "[path1] [path2] ...",
 	Flags: []cli.Flag{
-		&cli.BoolFlag{
-			Name:    "direct-io",
-			Aliases: []string{"d"},
-			Usage:   "enable direct I/O for disk operations",
-			Value:   true,
-			EnvVars: []string{"PIECEHUB_DIRECT_IO"},
-		},
 		&cli.StringFlag{
 			Name:  "listen",
 			Usage: "server listen address",
@@ -35,9 +28,8 @@ var dirCmd = &cli.Command{
 		}
 		for _, path := range paths {
 			cfg.Disks = append(cfg.Disks, config.DiskConfig{
-				Name:     path,
-				RootDir:  path,
-				DirectIO: c.Bool("direct-io"),
+				Name:    path,
+				RootDir: path,
 			})
 		}
 

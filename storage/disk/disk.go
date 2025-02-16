@@ -3,6 +3,7 @@ package disk
 import (
 	"context"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -50,12 +51,19 @@ func (ds *DiskStorage) Delete(ctx context.Context, name string) error {
 // Read implements storage.Storage.
 func (ds *DiskStorage) Read(ctx context.Context, name string) (io.ReadSeekCloser, error) {
 	path := ds.getPiecePath(name)
-	return ds.openFileDirectIO(path, os.O_RDONLY)
+	return os.OpenFile(path, os.O_RDONLY, 0644)
+}
+
+// CopyToHTTP implements storage.Storage.
+func (ds *DiskStorage) CopyToHTTP(ctx context.Context, name string, w http.ResponseWriter, req *http.Request) error {
+	path := ds.getPiecePath(name)
+	http.ServeFile(w, req, path)
+	return nil
 }
 
 // Write implements storage.Storage.
 func (ds *DiskStorage) Write(ctx context.Context, name string, reader io.Reader) error {
-	fp := filepath.Join(ds.cfg.RootDir, name)
+	fp := ds.getPiecePath(name)
 
 	writer, err := os.Create(fp)
 	if err != nil {
@@ -71,11 +79,4 @@ func (ds *DiskStorage) Write(ctx context.Context, name string, reader io.Reader)
 
 func (ds *DiskStorage) getPiecePath(name string) string {
 	return filepath.Join(ds.cfg.RootDir, name)
-}
-
-func (ds *DiskStorage) openFileDirectIO(path string, flag int) (*os.File, error) {
-	if ds.cfg.DirectIO {
-		flag |= getDirectIOFlag()
-	}
-	return os.OpenFile(path, flag, 0644)
 }

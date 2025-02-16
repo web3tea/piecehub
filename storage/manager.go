@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"sync"
 	"time"
 
@@ -19,7 +20,7 @@ type StorageManager struct {
 	mu       sync.RWMutex
 }
 
-func NewManager(cfg *config.Config) (*StorageManager, error) {
+func NewManager(cfg *config.Config) (Manager, error) {
 	m := &StorageManager{
 		storages: make(map[string]Storage),
 		cache:    expirable.NewLRU[string, *pieceCache](1024*1024, nil, time.Minute),
@@ -84,6 +85,17 @@ func (m *StorageManager) Stats(ctx context.Context, name string) (int64, error) 
 		}
 	}
 	return 0, fmt.Errorf("piece not found: %s", name)
+}
+
+func (m *StorageManager) CopyToHTTP(ctx context.Context, name string, w http.ResponseWriter, req *http.Request) error {
+	if pc, ok := m.cache.Get(name); ok {
+		store, err := m.GetStorage(pc.Storage)
+		if err != nil {
+			return err
+		}
+		return store.CopyToHTTP(ctx, name, w, req)
+	}
+	return fmt.Errorf("piece not found: %s", name)
 }
 
 // Write implements Storage.
