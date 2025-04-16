@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/strahe/piecehub/config"
 	"github.com/urfave/cli/v2"
+	"github.com/web3tea/piecehub/config"
 )
 
 var dirCmd = &cli.Command{

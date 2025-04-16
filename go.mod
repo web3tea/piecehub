@@ -1,4 +1,4 @@
-module github.com/strahe/piecehub
+module github.com/web3tea/piecehub
 
 go 1.23.4
 

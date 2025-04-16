@@ -11,7 +11,7 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/strahe/piecehub/config"
+	"github.com/web3tea/piecehub/config"
 )
 
 type S3Storage struct {
