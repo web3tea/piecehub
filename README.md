@@ -4,7 +4,7 @@ A Filecoin piece storage server for curio market.
 ## Installation
 
 ```bash
-go install github.com/strahe/piecehub/cmd/piecehub@latest
+go install github.com/web3tea/piecehub/cmd/piecehub@latest
 ```
 
 ## Quick Start

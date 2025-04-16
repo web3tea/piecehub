@@ -7,7 +7,7 @@ import (
 
 	"github.com/ipfs/go-cidutil/cidenc"
 	"github.com/multiformats/go-multibase"
-	"github.com/strahe/piecehub/internal/car"
+	"github.com/web3tea/piecehub/internal/car"
 )
 
 func (h *Handler) handleGenerateCar(w http.ResponseWriter, r *http.Request) {

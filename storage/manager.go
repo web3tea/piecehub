@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/golang-lru/v2/expirable"
-	"github.com/strahe/piecehub/config"
-	"github.com/strahe/piecehub/storage/disk"
-	"github.com/strahe/piecehub/storage/s3"
+	"github.com/web3tea/piecehub/config"
+	"github.com/web3tea/piecehub/storage/disk"
+	"github.com/web3tea/piecehub/storage/s3"
 )
 
 type StorageManager struct {

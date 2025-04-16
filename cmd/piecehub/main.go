@@ -11,11 +11,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/strahe/piecehub/api"
-	"github.com/strahe/piecehub/config"
-	"github.com/strahe/piecehub/storage"
-	"github.com/strahe/piecehub/version"
 	"github.com/urfave/cli/v2"
+	"github.com/web3tea/piecehub/api"
+	"github.com/web3tea/piecehub/config"
+	"github.com/web3tea/piecehub/storage"
+	"github.com/web3tea/piecehub/version"
 )
 
 func main() {

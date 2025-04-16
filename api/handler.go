@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/strahe/piecehub/config"
-	"github.com/strahe/piecehub/storage"
+	"github.com/web3tea/piecehub/config"
+	"github.com/web3tea/piecehub/storage"
 )
 
 type Handler struct {

@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/strahe/piecehub/config"
+	"github.com/web3tea/piecehub/config"
 )
 
 type DiskStorage struct {
